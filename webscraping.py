@@ -34,6 +34,7 @@ for a in range(rangepup) :
         print('-- Searching ethnicity on NNDB for %s' % actor_name)
         tmp = urllib.request.urlopen(search_url % urllib.parse.quote_plus(actor_name))
         result = tmp.read()
+        print(result)
         soup = BeautifulSoup(result,features="html.parser")
         all_results = soup.find_all('a')
         potential_results = []
