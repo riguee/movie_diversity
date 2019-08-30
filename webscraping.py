@@ -31,12 +31,14 @@ for a in range(rangepup) :
 
     #definition of the function that looks for the ethnicity on the NNDb website
     def nndb_ethnicity_lookup(actor_name):
+        print(actor_name)
         print('-- Searching ethnicity on NNDB for %s' % actor_name)
         tmp = urllib.request.urlopen(search_url % urllib.parse.quote_plus(actor_name))
         result = tmp.read()
         print(result)
         soup = BeautifulSoup(result,features="html.parser")
         all_results = soup.find_all('a')
+        print(all_results)
         potential_results = []
         for link in all_results:
             if (link.get('href').startswith(people_url_prefix) and link.contents[0] == actor_name):
