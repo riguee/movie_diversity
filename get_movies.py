@@ -44,11 +44,10 @@ def get_movies(year, country):
         year-=1
     print(movies)
     return(movies)
-api_key = "c4d48123a2a6f5d1d47be09f93ecc8db"
-api_read_access_token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjNGQ0ODEyM2EyYTZmNWQxZDQ3YmUwOWY5M2VjYzhkYiIsInN1YiI6IjVkNDk3MGFmMDI4ZjE0MDAxMTAxZmM1NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.sodqYMB0rEAic55k5u6HnmCGG2S55rf12RfGC6ntAaI"
-url = "http://www.omdbapi.com/?t=avengers&y=2019&plot=full&apikey=50f2d223"
+
 
 def get_cast(movies):
+
     all_actors_by_year={}
     for year in movies.keys():
         all_actors_by_year[year] = []
@@ -112,6 +111,8 @@ def add_ethnicities(actors_by_year):
     actors_to_search = []
     all_actor_ethnicities = []
     existing_actors =  pd.read_csv('all_actors.csv', encoding='utf_8')
+    actors_to_find = 0
+    actors_found = 0
     # actors_to_search = pd.DataFrame(columns=['actor'])
     # all_actor_ethnicities = pd.DataFrame(columns=['actor', 'ethnicity'])
     all_actors = []
@@ -127,8 +128,10 @@ def add_ethnicities(actors_by_year):
                 if ethnicity == 'Unknown' or ethnicity == '' or ethnicity == None:
                     print(actor+" wasn't found in the nndb database")
                     actors_to_search.append(actor)
+                    actors_to_find+=1
                 else:
                     all_actor_ethnicities.append([actor, ethnicity])
+                    actors_found+=1
             except:
                 print('An error happened while looking up the ethnicity of '+actor)
     print(all_actor_ethnicities)
@@ -143,6 +146,8 @@ def add_ethnicities(actors_by_year):
 
 year=2019
 country='United-States'
+key = os.getenv('OMDB_API_KEY', 'that doesnt work')
+print(key)
 movies = get_movies(year, country)
 casts = get_cast(movies)
 add_ethnicities(casts)
