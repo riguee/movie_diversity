@@ -47,7 +47,7 @@ def get_movies(year, country):
     print(movies)
     return(movies)
 
-def searchMovie(year, title):
+def searchMovie(year, movie):
     req_url = "http://www.omdbapi.com/?t="+movie+"&y="+str(year)+"&plot=full&apikey=50f2d223"
     response = req.get(req_url)
     if response.status_code == 200:
@@ -59,6 +59,7 @@ def searchMovie(year, title):
             return('error')
 
 def get_cast(movies):
+    movies_not_found=0
 
     all_actors_by_year={}
     for year in movies.keys():
@@ -74,6 +75,7 @@ def get_cast(movies):
                     all_actors_by_year[year] += info
                 else:
                     print('movie '+movie+" wasnt found")
+                    movies_not_found+=1
             # req_url = "http://www.omdbapi.com/?t="+movie+"&y="+str(year)+"&plot=full&apikey=50f2d223"
             # response = req.get(req_url)
             # if response.status_code == 200:
@@ -83,7 +85,7 @@ def get_cast(movies):
             #         all_actors_by_year[year] += actors
             #     except :
             #         print("movie "+ movie+" wasn't found")
-    print(all_actors_by_year)
+    print(str(movies_not_found)+" weren't found")
     return(all_actors_by_year)
 
 def test_ethnicity_lookup():
