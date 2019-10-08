@@ -10,6 +10,7 @@ import urllib.request
 import urllib
 import matplotlib.pyplot as plt
 import sys
+from datetime import datetime
 session = HTMLSession()
 
 
@@ -150,18 +151,18 @@ def add_ethnicities(actors_by_year):
         except:
         # if actor.strip() in existing_actors['actor']:
         #     print(actor +' exists in the database already')
-            all_actor_ethnicities.append([actor.strip(), ""])
-            # try:
-            #     ethnicity = nndb_ethnicity_lookup(actor)
-            #     if ethnicity == 'Unknown' or ethnicity == '' or ethnicity == None:
-            #         print(actor+" wasn't found in the nndb database")
-            #         actors_to_search.append(actor.strip())
-            #         actors_to_find+=1
-            #     else:
-            #         all_actor_ethnicities.append([actor.strip(), ethnicity])
-            #         actors_found+=1
-            # except:
-            #     print('An error happened while looking up the ethnicity of '+actor)
+            # all_actor_ethnicities.append([actor.strip(), ""])
+            try:
+                ethnicity = nndb_ethnicity_lookup(actor)
+                if ethnicity == 'Unknown' or ethnicity == '' or ethnicity == None:
+                    print(actor+" wasn't found in the nndb database")
+                    actors_to_search.append(actor.strip())
+                    actors_to_find+=1
+                else:
+                    all_actor_ethnicities.append([actor.strip(), ethnicity])
+                    actors_found+=1
+            except:
+                print('An error happened while looking up the ethnicity of '+actor)
     print(all_actor_ethnicities)
     print(actors_to_search)
     all_actor_ethnicities = pd.DataFrame(all_actor_ethnicities)
@@ -173,6 +174,52 @@ def add_ethnicities(actors_by_year):
     with open('unknown_actors.csv', 'a', encoding="utf-8") as f:
         actors_to_search.to_csv(f, header=False)
 #len_df['category_sub_1'].loc[len_df['sku'] == prod_ref].iloc[0]
+
+def searchGender(actor):
+    output = {"response" : False}
+    search_actor_url = "https://api.themoviedb.org/3/search/person?api_key=c4d48123a2a6f5d1d47be09f93ecc8db&language=en-US&query={}&page=1&include_adult=true".format(actor)
+    response = req.get(search_actor_url)
+    if response.status_code == 200:
+        resp = response.json()
+        for i in range(resp['total_results']):
+            if resp['results'][i]['known_for_department']=='Acting':
+                output["response"] = True
+                actor_id = resp['results'][i]['id']
+                print(actor_id)
+                break
+
+        if output["response"] ==False:
+            output["data"] = 'No result was found for actor {}'.format(actor)
+            return(output)
+    else:
+        output["response"] = False
+        ourput["data"] = 'There was an error with the actor search'
+        return(output)
+
+    search_gender_url = "https://api.themoviedb.org/3/person/{}?api_key=c4d48123a2a6f5d1d47be09f93ecc8db&language=en-UK".format(actor_id)
+    response = req.get(search_gender_url)
+    if response.status_code == 200:
+        resp = response.json()
+        bday = resp['birthday']
+        bday = datetime.strptime(bday, '%Y-%m-%d').date()
+        gender = resp['gender']
+        output["response"] = True
+        output["data"] = [gender, bday]
+        print("{}'s birthday is {}".format(actor, bday))
+        print("Their gender id is {}".format(gender))
+        return(output)
+    else:
+        output["response"] = False
+        output["data"] = 'There was an error with the API actor id query'
+        return(output)
+
+    # get date from str
+    # date_str = '09-19-2018'
+    # date_object = datetime.strptime(date_str, '%m-%d-%Y').date()
+    # print(type(date_object))
+    # print(date_object)  # printed in default formatting
+
+
 
 def getstats(actors_by_year):
     all_ethnicities_by_year = {}
@@ -187,8 +234,8 @@ def getstats(actors_by_year):
             actor = actor.strip()
             print('\tLooking for '+actor)
             try:
-                print(existing_actors['ethnicity'].loc[existing_actors['actor'] == actor].iloc[0])
                 ethn = existing_actors['ethnicity'].loc[existing_actors['actor'] == actor].iloc[0]
+                print(ethn)
                 if ethn in all_ethnicities_by_year[year].keys():
                     all_ethnicities_by_year[year][ethn]+=1
                 else:
@@ -220,16 +267,18 @@ def printpiechart(dict, country):
 year=2019
 country='United-Kingdom'
 
+print(searchGender('Mill Smith'))
 
-if sys.argv[1] == "fetch":
-    movies = get_movies(year, country)
-    casts = get_cast(movies)
-    add_ethnicities(casts)
 
-else:
-    movies = get_movies(year, country)
-    casts = get_cast(movies)
-    stats = getstats(casts)
-    printpiechart(stats, country)
+# if sys.argv[1] == "fetch":
+#     movies = get_movies(year, country)
+#     casts = get_cast(movies)
+#     add_ethnicities(casts)
+#
+# else:
+#     movies = get_movies(year, country)
+#     casts = get_cast(movies)
+#     stats = getstats(casts)
+#     printpiechart(stats, country)
 
 # key = os.getenv('OMDB_API_KEY', 'that doesnt work')
