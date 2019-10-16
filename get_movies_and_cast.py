@@ -5,8 +5,32 @@ from bs4 import BeautifulSoup
 import html
 import os
 import sys
+import tmdbsimple as tmdb
 session = HTMLSession()
 
+
+tmdb.API_KEY = '044b74de638995f58e819e4736f5b29c'
+
+# Need to use another API for better results or a combination of two APIs
+def tmdbSearch(movie):
+    search = tmdb.Search()
+    response = search.movie(query=movie)
+    if (len(search.results) <= 0):
+        return (False)
+    else:
+        return(True)
+    # s = search.results[0]
+    # print(s['title'] + " :")
+    # movie = tmdb.Movies(s['id'])
+    # response = movie.info()
+    # for actor in movie.credits()['cast']:
+    #     try :
+    #         if (actor['order'] > 5):
+    #             continue
+    #         ethnicity = nndb_ethnicity_lookup(actor['name'])
+    #         output_file.write('%s;%s;%s\r' % (actor['name'], actor['character'], ethnicity))
+    #     except Exception:
+    #         pass
 
 def get_movies(year, country):
 
@@ -82,3 +106,24 @@ def get_cast(movies):
                     print("movie "+ movie+" wasn't found")
     print(str(movies_not_found)+" movies weren't found")
     return(all_actors_by_year)
+
+def getmoviesfromthefuckingfiles(year, country):
+    movies_not_found_tmdb = []
+    movies_not_found_omdb = []
+    while year > 1999:
+        input_file = open('./' + country + '/'+ str(year) + '.txt', 'r', encoding='utf_8')
+        for line in input_file:
+            print('\tSearching movie {}'.format(line.strip()))
+            tmdb_result = tmdbSearch(line)
+            omdb_result = searchMovie(year, line)
+            if omdb_result == 'error':
+                print('Not found in omdb')
+                movies_not_found_omdb.append(line)
+            if tmdb_result == False:
+                print('Not found in tmdb')
+                movies_not_found_tmdb.append(line)
+        year-=1
+    print(str(len(movies_not_found_tmdb))+" weren't found in tmdb")
+    print(str(len(movies_not_found_omdb))+" weren't found in omdb")
+    diff = list(set(movies_not_found_omdb) - set(movies_not_found_tmdb))
+    print('they have '+len(str(diff))+' different films not found.')
