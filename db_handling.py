@@ -12,6 +12,7 @@ def ask_what_to_do(details = 'start'):
     else:
         further = input('What table do you want to see more of? (Enter none to exit)')
     if further.lower() == 'none':
+        print("Goodbye :)")
         return None
     else:
         try:
@@ -35,6 +36,7 @@ def do_stuff():
 
 if __name__ == "__main__":
     do_stuff()
+    conn.close()
 
 
 

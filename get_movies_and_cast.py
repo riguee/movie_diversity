@@ -58,8 +58,8 @@ def webscrapeMovies(country, year):
 def get_movies(year, country):
 
     dirName = country
+    os.mkdir(dirName)
     try:
-        os.mkdir(dirName)
         print("Directory " , dirName ,  " Created ")
     except FileExistsError:
         print("Directory " , dirName ,  " already exists")
