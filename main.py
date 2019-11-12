@@ -7,22 +7,26 @@ import get_actor_ethnicity as ethn
 #import sqlite for database handling
 import sqlite3
 
-year=2019
-country='United-States'
+if __name__ == "__main__":
+    year=2019n
+    country='United-States'
+    conn = sqlite3.connect('movie.db')
 
-g_m.getmoviesfromthefuckingfiles(year, country)
-# movies = g_m.get_movies(year, country)
-# casts = g_m.get_cast(movies)
-# gender.getInfoOnActors(casts)
-# if sys.argv[1] == "fetch":
-#     movies = get_movies(year, country)
-#     casts = get_cast(movies)
-#     add_ethnicities(casts)
-#
-# else:
-#     movies = get_movies(year, country)
-#     casts = get_cast(movies)
-#     stats = getstats(casts)
-#     printpiechart(stats, country)
 
-# key = os.getenv('OMDB_API_KEY', 'that doesnt work')
+    #g_m.get_movies(year, country)
+    # g_m.getmoviesfromthefuckingfiles(year, country)
+    # movies = g_m.get_movies(year, country)
+    # casts = g_m.get_cast(movies)
+    # gender.getInfoOnActors(casts)
+    # if sys.argv[1] == "fetch":
+    #     movies = get_movies(year, country)
+    #     casts = get_cast(movies)
+    #     add_ethnicities(casts)
+    #
+    # else:
+    #     movies = get_movies(year, country)
+    #     casts = get_cast(movies)
+    #     stats = getstats(casts)
+    #     printpiechart(stats, country)
+
+    # key = os.getenv('OMDB_API_KEY', 'that doesnt work')
