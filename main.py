@@ -6,12 +6,14 @@ import get_actor_ethnicity as ethn
 
 #import sqlite for database handling
 import sqlite3
-
-if __name__ == "__main__":
-    year=2019n
-    country='United-States'
-    conn = sqlite3.connect('movie.db')
-
+#
+# if __name__ == "__main__":
+#     year=2019
+#     country='United-States'
+#     conn = sqlite3.connect('movie.db')
+year=2019
+country='United-States'
+#g_m.getmoviesfromthefuckingfiles(year, country)
 
     #g_m.get_movies(year, country)
     # g_m.getmoviesfromthefuckingfiles(year, country)

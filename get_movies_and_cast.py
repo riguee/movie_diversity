@@ -5,22 +5,58 @@ from bs4 import BeautifulSoup
 import html
 import os
 import sys
+import sqlite3
 import tmdbsimple as tmdb
 session = HTMLSession()
 
 
 tmdb.API_KEY = '044b74de638995f58e819e4736f5b29c'
+conn = sqlite3.connect('movie.db')
+c = conn.cursor()
+
+def doer():
+    genres = pd.read_sql_query("SELECT * from genre", conn, index_col="id")
+    actors = pd.read_sql_query("SELECT * from actors", conn, index_col="id")
+    countries = pd.read_sql_query("SELECT * FROM countries", conn, index_col="id")
+    movies = pd.read_sql_query("SELECT * FROM movies;", conn, index_col='id')
+
 
 # Need to use another API for better results or a combination of two APIs
-def tmdbSearch(year, movie):
+def tmdbSearch(year, movie, movies, genres, actors, countries):
     url = "https://api.themoviedb.org/3/search/movie?api_key=c4d48123a2a6f5d1d47be09f93ecc8db&language=en-US&query={}&page=1&year={}".format(movie, str(year))
-    # search = tmdb.Search()
-    # response = search.movie(query=movie)
     response = req.get(url)
     if response.status_code == 200:
         resp = response.json()
         if resp["total_results"]>>0:
-            return(True)
+            id = resp["results"][0]["id"]
+            url = f"https://api.themoviedb.org/3/movie/{id}?api_key=c4d48123a2a6f5d1d47be09f93ecc8db&language=en-US"
+            response = req.get(url)
+            response = response.json()
+            movie_data = {'name':movie,
+                    'release_date': response["release_date"],
+                    'imdb_rating': ,
+                    'rotten_tomatoes_rating': ,
+                    'google_rating': ,
+                    'tmdb_id': response['id'],
+                    'imdb_id': respons['imdb_id'],
+                    'omdb_id': None,
+                    'budget': response['budget'],
+                    'language': response['original_language'],
+                    'revenue': response['revenue'],
+                    'runtime': response['runtime'],
+                    'collection': response['belongs_to_collection']['name']
+
+            }
+            url_cast = f"https://api.themoviedb.org/3/movie/{id}/credits?api_key=c4d48123a2a6f5d1d47be09f93ecc8db"
+            response_cast = req.get(url_cast)
+            if response_cast.status_code == 200:
+                cast = {"actor": [], "movie": [], "character": []}
+                resp = response_cast.json()
+                num = min(10; len(resp["cast"]))
+                for i in range(num):
+                    cast["actor"].append(resp["cast"][i]["name"])
+                    cast["movie"].append()
+
         else:
             return(False)
     else:
@@ -58,24 +94,26 @@ def webscrapeMovies(country, year):
 def get_movies(year, country):
 
     dirName = country
-    try:
-        os.mkdir(dirName)
-        print("Directory " , dirName ,  " Created ")
-    except FileExistsError:
-        print("Directory " , dirName ,  " already exists")
+    #try:
+    #    os.mkdir(dirName)
+    #    print("Directory " , dirName ,  " Created ")
+    #except FileExistsError:
+    #    print("Directory " , dirName ,  " already exists")
 
     movies = {}
     while year >1999 :
         if os.path.isfile('./'+country+'/'+str(year)+'.txt')==False:
-            movies = webscrapeMovies(country, year)
-            filename = country+'/'+str(year)+'.txt'
-            with open(filename, "w", encoding='utf-8') as txt_file:
-                for line in movies:
-                    txt_file.write(str(line) + "\n")
+            movies[year] = webscrapeMovies(country, year)
+            #filename = country+'/'+str(year)+'.txt'
+            #with open(filename, "w", encoding='utf-8') as txt_file:
+            #    for line in movies:
+            #        txt_file.write(str(line) + "\n")
         else:
             movies = open('./'+country+'/'+str(year)+'.txt')
             nb_lines = 0
+            movies[year]=[]
             for line in movies:
+                movies[year.append(line)]
                 nb_lines += 1
             if nb_lines<40:
                 answer = input("The number of movies saved for {} is less than 40.\nDo you want to proceed anyways? (y/n)".format(str(year)))
@@ -85,10 +123,9 @@ def get_movies(year, country):
                     print("you're super cool")
                 else:
                     print("can you read???")
-            year-=1
 
-    #
-    #
+        year-=1
+    return(movies)
     #     for year in movies:
     #         with open(filename, "w", encoding='utf-8') as txt_file:
     #             for line in movies[year]:
@@ -138,12 +175,11 @@ def get_cast(movies):
     print(str(movies_not_found)+" movies weren't found")
     return(all_actors_by_year)
 
-def getmoviesfromthefuckingfiles(year, country):
+def search_movies(movies):
     movies_not_found_tmdb = []
     movies_not_found_omdb = []
-    while year > 1999:
-        input_file = open('./' + country + '/'+ str(year) + '.txt', 'r', encoding='utf_8')
-        for line in input_file:
+    for year in movies.keys():
+        for line in movies[year]:
             if 'Star Wars' in line:
                 line = "Star Wars"
             print('\tSearching movie {}'.format(line.strip()))
